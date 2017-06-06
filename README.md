@@ -8,23 +8,17 @@ Pour lancer le code avec les valeurs par défaut de mon modèle il suffit de lan
 
 * Entrainer l'algorithme
 
-Afin d'entrainer l'algorithme il faut simplement lancer:
-
 ```
 python3 exec.py
 ```
 
-* Tester l'algorithme
-
-Teste le modèle (pas obligatoire si vous voulez juste parler avec le bot):
+* Tester le modèle (pas obligatoire si vous voulez juste parler avec le bot):
 
 ```
 python3 exec.py --test
 ```
 
-* Intéragir avec le chatbot
-
-Pour parler avec le chatbot et voir ce qu'il répond:
+* Parler avec le chatbot:
 
 ```
 python3 exec.py --decode
