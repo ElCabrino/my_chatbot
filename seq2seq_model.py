@@ -18,6 +18,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from my_seq2seq import *  
+
 import random
 
 import numpy as np
@@ -129,9 +131,9 @@ class Seq2SeqModel(object):
       cell = tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])
 
     # The seq2seq function: we use embedding for the input and attention.
-    """je pense que c'est ici que je dois changer le modele"""
+    """Ici j'ai mis mon fichier a la place pour avoir mon modele personnalisé"""
     def seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
-      return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
+      return embedding_attention_seq2seq(
           encoder_inputs,
           decoder_inputs,
           cell,

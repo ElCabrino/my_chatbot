@@ -1,0 +1,8 @@
+working_dir/*
+!working_dir/.gitkeep
+tmp/*
+!tmp/.gitkeep
+data/*.ids*
+__pycache__/
+__init__.py
+.DS_Store
