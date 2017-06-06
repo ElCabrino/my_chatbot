@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Sequence-to-sequence model with an attention mechanism."""
 
 from __future__ import absolute_import
@@ -119,6 +118,7 @@ class Seq2SeqModel(object):
       softmax_loss_function = sampled_loss
 
     # Create the internal multi-layer cell for our RNN.
+    """la ça créé les cellule reliée entre elles"""
     def single_cell():
       return tf.contrib.rnn.GRUCell(size)
     if use_lstm:
@@ -129,6 +129,7 @@ class Seq2SeqModel(object):
       cell = tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])
 
     # The seq2seq function: we use embedding for the input and attention.
+    """je pense que c'est ici que je dois changer le modele"""
     def seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
       return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
           encoder_inputs,
@@ -238,7 +239,7 @@ class Seq2SeqModel(object):
     last_target = self.decoder_inputs[decoder_size].name
     input_feed[last_target] = np.zeros([self.batch_size], dtype=np.int32)
 
-    # Output feed: depends on whether we do a backward step or not.
+    # Output feed: depends on whether we do a backward step or not.t
     if not forward_only:
       output_feed = [self.updates[bucket_id],  # Update Op that does SGD.
                      self.gradient_norms[bucket_id],  # Gradient norm.
