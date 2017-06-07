@@ -30,15 +30,22 @@ On peut changer les valeurs par défaut du code en mettant en option au lancemen
 
 **Attention**, il faut impérativement lancer l'entrainement, le test et le décodage avec les **mêmes** paramètres.
 
-* Les options principales
+#### Les options principales
 
 Option | Valeur par défaut | Utilité
 --- | --- | ---
 **size** | 1024 | Nombre de cellules d'une couche du modèle
-**num_layers | 1 | Nombre de couches du modèle 
+**num_layers** | 1 | Nombre de couches du modèle 
 **from_vocab_size** | 20000 | Taille maximale du vocabulaire d'entrée
 **to_vocab_size** | 20000 | Taille maximale du vocabulaire de sortie
 **steps_per_checkpoint** | 5 | Nombre d'étapes avant de sauvegarder l'état du modèle
 
-
+Par exemple pour entrainer le modèle avec 3 couches de 256 cellules:
+```
+python3 exec.py --size=256 --num_layers=3
+```
+et pour lancer le décodage:
+```
+python3 exec.py --decode --size=256 --num_layers=3
+``` 
 Il y a  d'autres options qui sont au début du fichier `exec.py`.
