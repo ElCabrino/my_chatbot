@@ -1,4 +1,4 @@
-# Chatbot pour mon projet de Bachelor en Sciences informatiques
+## Chatbot pour mon projet de Bachelor en Sciences informatiques
 
 Chatbot fait à l'aide de Tensorflow 1.0. Le code ne fonctionne pas pour des versions ultérieures.
 
@@ -15,7 +15,7 @@ python3 exec.py
 * Tester le modèle (pas obligatoire si vous voulez juste parler avec le bot):
 
 ```
-python3 exec.py --test
+python3 exec.py --self_test
 ```
 
 * Parler avec le chatbot:
@@ -24,5 +24,21 @@ python3 exec.py --test
 python3 exec.py --decode
 ```
 
+# Options du code
+
+On peut changer les valeurs par défaut du code en mettant en option au lancement: `--{nom_variable}={val}`.
+
+**Attention**, il faut impérativement lancer l'entrainement, le test et le décodage avec les **mêmes** paramètres.
+
+* Les options principales
+
+Option | Valeur par défaut | Utilité
+--- | --- | ---
+**size** | 1024 | Nombre de cellules d'une couche du modèle
+**num_layers | 1 | Nombre de couches du modèle 
+**from_vocab_size** | 20000 | Taille maximale du vocabulaire d'entrée
+**to_vocab_size** | 20000 | Taille maximale du vocabulaire de sortie
+**steps_per_checkpoint** | 5 | Nombre d'étapes avant de sauvegarder l'état du modèle
 
 
+Il y a  d'autres options qui sont au début du fichier `exec.py`.
