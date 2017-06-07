@@ -1,8 +1,8 @@
-## Chatbot pour mon projet de Bachelor en Sciences informatiques
+# Chatbot pour mon projet de Bachelor en Sciences informatiques
 
 Chatbot fait à l'aide de Tensorflow 1.0. Le code ne fonctionne pas pour des versions ultérieures.
 
-# Lancement du code
+## Lancement du code
 
 Pour lancer le code avec les valeurs par défaut de mon modèle il suffit de lancer les commandes ci-dessous dans l'ordre.
 
@@ -24,7 +24,7 @@ python3 exec.py --self_test
 python3 exec.py --decode
 ```
 
-# Options du code
+## Options du code
 
 On peut changer les valeurs par défaut du code en mettant en option au lancement: `--{nom_variable}={val}`.
 
