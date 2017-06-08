@@ -2,6 +2,12 @@
 
 Chatbot fait à l'aide de Tensorflow 1.0. Le code ne fonctionne pas pour des versions ultérieures.
 
+## Dépendances
+
+* tensorflow
+* numpy
+* six
+
 ## Lancement du code
 
 Pour lancer le code avec les valeurs par défaut de mon modèle il suffit de lancer les commandes ci-dessous dans l'ordre.
