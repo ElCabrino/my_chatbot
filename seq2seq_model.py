@@ -131,9 +131,9 @@ class Seq2SeqModel(object):
       cell = tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])
 
     # The seq2seq function: we use embedding for the input and attention.
-    """Ici j'ai mis mon fichier a la place pour avoir mon modele personnalisé"""
+    """ajouté 1 couche d'attentions"""
     def seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
-      return embedding_attention_seq2seq(
+      return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
           encoder_inputs,
           decoder_inputs,
           cell,
@@ -142,7 +142,8 @@ class Seq2SeqModel(object):
           embedding_size=size,
           output_projection=output_projection,
           feed_previous=do_decode,
-          dtype=dtype)
+          dtype=dtype,
+          num_heads=2)
 
     # Feeds for inputs.
     self.encoder_inputs = []
