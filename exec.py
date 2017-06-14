@@ -305,7 +305,7 @@ def main(_):
   #train()
 
   #en_vocab_path = os.path.join('/tmp',
-  #                               "vocab20000.from")
+  #                              "vocab20000.from")
   if FLAGS.self_test:
     self_test()
   elif FLAGS.decode:
@@ -313,6 +313,7 @@ def main(_):
   else:
     train()
 
+ # data_utils.prepare_data_maybe_download('tmp/')  
 
 if __name__ == "__main__":
   tf.app.run()

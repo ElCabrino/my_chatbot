@@ -7,6 +7,7 @@ Chatbot fait à l'aide de Tensorflow 1.0. Le code ne fonctionne pas pour des ver
 * tensorflow
 * numpy
 * six
+* clint
 
 ## Lancement du code
 
