@@ -327,6 +327,7 @@ def create_my_dataset(dialogs_path):
             for line in tsv_file:
                 line_split = line[:-1].split('\t')
                 #I verifiy is the line is not empty
+                if len(line_split) > 3:
                     print('cc')
                     if line_split[1] != last_person:
                         file_to_write = (file_to_write+1) % 2
