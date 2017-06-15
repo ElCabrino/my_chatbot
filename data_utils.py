@@ -277,8 +277,9 @@ def create_my_dataset(dialogs_path):
     if A starts the conversation with B and finish it, I don't consider the lasts messages of A
     because I need the same number of messages from A and B
     """
-
-    files=glob.glob(dialogs_path)
+    print('yo')
+    rm_one_way_conv(dialogs_path)
+    files=glob.glob(os.path.join(dialogs_path+'/**/*.tsv'))
     size = len(files)
     count = 1
     enc_file=open('data/train2.enc', 'w+')
@@ -325,14 +326,25 @@ def create_my_dataset(dialogs_path):
             #now we can parse normally:
             for line in tsv_file:
                 line_split = line[:-1].split('\t')
-                if line_split[1] != last_person:
-                    enc_dec_files[file_to_write].write('\n')
-                    file_to_write = (file_to_write+1) % 2
-                    enc_dec_files[file_to_write].write(line_split[3])
-                    last_person = line_split[1]
-                #the same person send many messages in a row
-                else:
-                    enc_dec_files[file_to_write].write(' ' + line_split[3])
+                #I verifiy is the line is not empty
+                    print('cc')
+                    if line_split[1] != last_person:
+                        file_to_write = (file_to_write+1) % 2
+                        if file_to_write == 0:
+                            enc_dec_files[1].write('\n')
+                            str_buffer = line_split[3]
+                            last_person = line_split[1]
+                        else:
+                            str_buffer += '\n'
+                            enc_dec_files[0].write(str_buffer)
+                            enc_dec_files[1].write(line_split[3])
+                            last_person = line_split[1]
+                    #the same person send many messages in a row
+                    else:
+                        if file_to_write == 1:
+                            enc_dec_files[1].write(' ' + line_split[3])
+                        else:
+                            str_buffer += ' ' +line_split[3]
         count += 1
 
 

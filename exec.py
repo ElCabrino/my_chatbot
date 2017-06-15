@@ -313,8 +313,8 @@ def main(_):
     decode()
   else:
     train()"""
-  data_utils.rm_one_way_conv('data/test_dialogs')
-  #data_utils.create_my_dataset('data/test_dialogs/**/*.tsv')
+  #data_utils.rm_one_way_conv('data/test_dialogs')
+  data_utils.create_my_dataset('data/test_dialogs')
 
  # data_utils.prepare_data_maybe_download('tmp/')  
 
