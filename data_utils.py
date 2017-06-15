@@ -22,7 +22,7 @@ import gzip
 import os
 import re
 import tarfile
-import requests
+import glob
 
 from clint.textui import progress
 
@@ -248,3 +248,103 @@ def prepare_data_maybe_download(directory):
             print("Archive unpacked.")
 
         return
+
+def rm_one_way_conv(dialogs_path):
+    """
+    remove all one way conversation in the tsv that are in dialogs_path
+    do nothing if it's already done (if .one_way_conv_removed exists)
+    """
+    if not os.path.exists(os.path.join(dialogs_path + '/.one_way_conv_removed')):
+        files=glob.glob(os.path.join(dialogs_path+'/**/*.tsv'))
+
+        for tsv in files:
+            persons = []
+            with open(tsv, 'r') as tsv_file:
+                for line in tsv_file:
+                    line_split = line.split('\t')
+                    if line_split[1] not in persons:
+                        persons.append(line_split[1])
+            if len(persons) < 2:
+                print('Removing ' + tsv)
+                os.remove(tsv)
+            open(os.path.join(dialogs_path + '/.one_way_conv_removed'), 'w+')
+
+#T0D0: gérer le cas ou A commence et fini la conversation avec B
+#faire avec un buffer
+def create_my_dataset(dialogs_path):
+    """
+    create the .enc and .dec files from the tsv of the ubuntu dialog ubuntu corpus
+    if A starts the conversation with B and finish it, I don't consider the lasts messages of A
+    because I need the same number of messages from A and B
+    """
+
+    files=glob.glob(dialogs_path)
+    size = len(files)
+    count = 1
+    enc_file=open('data/train2.enc', 'w+')
+    dec_file=open('data/train2.dec', 'w+')
+    enc_dec_files = [enc_file, dec_file]
+    str_buffer = ''
+    for tsv in files:
+        print('Parsing file ' + str(count) +' of ' + str(size) +': ' + tsv)
+        both_found=False
+        #last person that have sent a msg
+        last_person = ''
+        file_to_write = 0
+        with open(tsv, 'r+') as tsv_file:
+            #reading the first message(s) and rm \n:
+            first_line = tsv_file.readline()[:-1]
+            #spliting the line
+            first_line_split = first_line.split('\t')
+            #we find the first person
+            last_person = first_line_split[1]
+            row = 0
+            #sometimes at the begining there is one row missing
+            if len(first_line_split) == 3:
+                row = 2
+            else:
+                row = 3
+            enc_dec_files[file_to_write].write(first_line_split[row])
+            while not both_found:
+                line = tsv_file.readline()[:-1].split('\t')
+                #in some case there is an empty line at the end of the file:
+                if len(line) < 3:
+                    both_found = True
+                else:
+                    if line[1] != last_person:
+                        enc_dec_files[file_to_write].write('\n')#newline in enc_file
+                        #now I write in the .dec
+                        file_to_write = 1
+                        enc_dec_files[file_to_write].write(line[3])
+                        last_person = line[1]
+                        both_found = True
+                    #this is still a line with only 1 person specified
+                    else:
+                        enc_dec_files[file_to_write].write(' ' + line[row]) #I concatenate the separated messages
+
+            #now we can parse normally:
+            for line in tsv_file:
+                line_split = line[:-1].split('\t')
+                if line_split[1] != last_person:
+                    enc_dec_files[file_to_write].write('\n')
+                    file_to_write = (file_to_write+1) % 2
+                    enc_dec_files[file_to_write].write(line_split[3])
+                    last_person = line_split[1]
+                #the same person send many messages in a row
+                else:
+                    enc_dec_files[file_to_write].write(' ' + line_split[3])
+        count += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+

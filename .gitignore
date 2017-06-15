@@ -2,7 +2,11 @@ working_dir/*
 !working_dir/.gitkeep
 tmp/*
 !tmp/.gitkeep
-data/*.ids*
+data/*
+!data/test.enc
+!data/test.dec
+!data/train.enc
+!data/train.dec
 __pycache__/
 __init__.py
 .DS_Store

@@ -150,7 +150,7 @@ def train():
   #SANS DOWLOAD
   print("Preparing my data in working_dir/" )
   from_train, to_train, from_dev, to_dev, _, _ = data_utils.prepare_my_data('working_dir',
-    'data/train.enc', 'data/train.dec','data/test.enc','data/test.dec', 20000, 20000)
+    'data/train.enc', 'data/train.dec','data/test.enc','data/test.dec', FLAGS.from_vocab_size, FLAGS.to_vocab_size)
 
   with tf.Session() as sess:
     # Create model.
@@ -306,12 +306,15 @@ def main(_):
 
   #en_vocab_path = os.path.join('/tmp',
   #                              "vocab20000.from")
+  """
   if FLAGS.self_test:
     self_test()
   elif FLAGS.decode:
     decode()
   else:
-    train()
+    train()"""
+  data_utils.rm_one_way_conv('data/test_dialogs')
+  #data_utils.create_my_dataset('data/test_dialogs/**/*.tsv')
 
  # data_utils.prepare_data_maybe_download('tmp/')  
 
