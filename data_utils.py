@@ -254,6 +254,7 @@ def rm_one_way_conv(dialogs_path):
     remove all one way conversation in the tsv that are in dialogs_path
     do nothing if it's already done (if .one_way_conv_removed exists)
     """
+    print('Removing one way conversations...')
     if not os.path.exists(os.path.join(dialogs_path + '/.one_way_conv_removed')):
         files=glob.glob(os.path.join(dialogs_path+'/**/*.tsv'))
 
@@ -265,29 +266,36 @@ def rm_one_way_conv(dialogs_path):
                     if line_split[1] not in persons:
                         persons.append(line_split[1])
             if len(persons) < 2:
-                print('Removing ' + tsv)
+                print('\rRemoving ' + tsv, end='')
                 os.remove(tsv)
-            open(os.path.join(dialogs_path + '/.one_way_conv_removed'), 'w+')
+        open(os.path.join(dialogs_path + '/.one_way_conv_removed'), 'w+')
+        print(' Done!')
+    else:
+        print('Already removed.')
 
-#T0D0: gérer le cas ou A commence et fini la conversation avec B
-#faire avec un buffer
-def create_my_dataset(dialogs_path):
+
+def create_my_dataset(dialogs_path, train_enc, train_dec, test_enc, test_dec):
     """
     create the .enc and .dec files from the tsv of the ubuntu dialog ubuntu corpus
     if A starts the conversation with B and finish it, I don't consider the lasts messages of A
     because I need the same number of messages from A and B
     """
-    print('yo')
+    print('Creating the formatted dataset from the Unbuntu Dialog Corpus...')
+    if os.path.exists(train_enc) and os.path.exists(train_dec):
+        print('Dataset already created.')
+        return
+
     rm_one_way_conv(dialogs_path)
     files=glob.glob(os.path.join(dialogs_path+'/**/*.tsv'))
     size = len(files)
     count = 1
-    enc_file=open('data/train2.enc', 'w+')
-    dec_file=open('data/train2.dec', 'w+')
+    enc_file=open(train_enc+'.tmp', 'w+')
+    dec_file=open(train_dec+'.tmp', 'w+')
     enc_dec_files = [enc_file, dec_file]
     str_buffer = ''
+    total_line = 0
     for tsv in files:
-        print('Parsing file ' + str(count) +' of ' + str(size) +': ' + tsv)
+        print('\rParsing file ' + str(count) +' of ' + str(size) +': ' + tsv + '            ', end='')
         both_found=False
         #last person that have sent a msg
         last_person = ''
@@ -318,6 +326,7 @@ def create_my_dataset(dialogs_path):
                         file_to_write = 1
                         enc_dec_files[file_to_write].write(line[3])
                         last_person = line[1]
+                        total_line += 1
                         both_found = True
                     #this is still a line with only 1 person specified
                     else:
@@ -328,7 +337,6 @@ def create_my_dataset(dialogs_path):
                 line_split = line[:-1].split('\t')
                 #I verifiy is the line is not empty
                 if len(line_split) > 3:
-                    print('cc')
                     if line_split[1] != last_person:
                         file_to_write = (file_to_write+1) % 2
                         if file_to_write == 0:
@@ -339,6 +347,7 @@ def create_my_dataset(dialogs_path):
                             str_buffer += '\n'
                             enc_dec_files[0].write(str_buffer)
                             enc_dec_files[1].write(line_split[3])
+                            total_line += 1
                             last_person = line_split[1]
                     #the same person send many messages in a row
                     else:
@@ -346,10 +355,45 @@ def create_my_dataset(dialogs_path):
                             enc_dec_files[1].write(' ' + line_split[3])
                         else:
                             str_buffer += ' ' +line_split[3]
+            #rare case where it miss a newline
+            if file_to_write == 1:
+                enc_dec_files[1].write('\n')
+        count += 1
+    print()
+    print('Done!')
+
+    #now I split the files to create the 4 files I need:
+    #train.enc, train.dec, test.enc, test.dec
+    print('Finilizing...', end='')
+    #spliting the enc .tmp file
+    enc_file.seek(0, 0)
+    split = int(total_line*(3/4))
+    count = 0
+    train_enc_f = open(train_enc, 'w+')
+    test_enc_f = open(test_enc, 'w+')
+    for line in enc_file:
+        if count < split:
+            train_enc_f.write(line)
+        else:
+            test_enc_f.write(line)
         count += 1
 
+    #spliting the dec .tmp file
+    dec_file.seek(0, 0)
+    count = 0
+    train_dec_f = open(train_dec, 'w+')
+    test_dec_f = open(test_dec, 'w+')
+    for line in dec_file:
+        if count < split:
+            train_dec_f.write(line)
+        else:
+            test_dec_f.write(line)
+        count += 1
 
-
+    #rm tmp file
+    os.remove(train_enc+'.tmp')
+    os.remove(train_dec+'.tmp')
+    print(' Done!')
 
 
 

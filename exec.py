@@ -37,6 +37,7 @@ import random
 import sys
 import time
 import logging
+import mmap
 
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -55,8 +56,8 @@ tf.app.flags.DEFINE_integer("batch_size", 64,
                             "Batch size to use during training.")
 tf.app.flags.DEFINE_integer("size", 1024, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers in the model.")
-tf.app.flags.DEFINE_integer("from_vocab_size", 20000, "Input vocabulary size.")
-tf.app.flags.DEFINE_integer("to_vocab_size", 20000, "Output vocabulary size.")
+tf.app.flags.DEFINE_integer("from_vocab_size", 40000, "Input vocabulary size.")
+tf.app.flags.DEFINE_integer("to_vocab_size", 40000, "Output vocabulary size.")
 tf.app.flags.DEFINE_string("data_dir", "tmp/", "Data directory")
 tf.app.flags.DEFINE_string("train_dir", "tmp/", "Training directory.")
 #tf.app.flags.DEFINE_string("my_dir", "/Users/vincent/Dropbox/Troisieme/PB/mon_code/working_dir", "Training directory.")
@@ -292,6 +293,14 @@ def self_test():
       model.step(sess, encoder_inputs, decoder_inputs, target_weights,
                  bucket_id, False)
 
+def mapcount(filename):
+    f = open(filename, "r+")
+    buf = mmap.mmap(f.fileno(), 0)
+    lines = 0
+    readline = buf.readline
+    while readline():
+        lines += 1
+    return lines
 
 def main(_):
   #tokenizer=None
@@ -306,15 +315,15 @@ def main(_):
 
   #en_vocab_path = os.path.join('/tmp',
   #                              "vocab20000.from")
-  """
+  
   if FLAGS.self_test:
     self_test()
   elif FLAGS.decode:
     decode()
   else:
-    train()"""
+    train()
   #data_utils.rm_one_way_conv('data/test_dialogs')
-  data_utils.create_my_dataset('data/test_dialogs')
+  #data_utils.create_my_dataset('data/dialogs', 'data/train2.enc', 'data/train2.dec', 'data/test2.enc', 'data/test2.dec')
 
  # data_utils.prepare_data_maybe_download('tmp/')  
 
