@@ -56,11 +56,11 @@ tf.app.flags.DEFINE_integer("batch_size", 64,
                             "Batch size to use during training.")
 tf.app.flags.DEFINE_integer("size", 1024, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers in the model.")
+tf.app.flags.DEFINE_integer("num_attns_decoder", 1, "Number of attentions on the decoding in the model.")
 tf.app.flags.DEFINE_integer("from_vocab_size", 40000, "Input vocabulary size.")
 tf.app.flags.DEFINE_integer("to_vocab_size", 40000, "Output vocabulary size.")
 tf.app.flags.DEFINE_string("data_dir", "tmp/", "Data directory")
 tf.app.flags.DEFINE_string("train_dir", "tmp/", "Training directory.")
-#tf.app.flags.DEFINE_string("my_dir", "/Users/vincent/Dropbox/Troisieme/PB/mon_code/working_dir", "Training directory.")
 tf.app.flags.DEFINE_string("from_train_data", None, "Training data.")
 tf.app.flags.DEFINE_string("to_train_data", None, "Training data.")
 tf.app.flags.DEFINE_string("from_dev_data", None, "Training data.")
@@ -134,7 +134,8 @@ def create_model(session, forward_only):
       FLAGS.batch_size,
       FLAGS.learning_rate,
       FLAGS.learning_rate_decay_factor,
-      forward_only=forward_only)
+      forward_only=forward_only
+      num_heads=FLAGS.num_attns_decoder)
   ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
   if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
     print("Reading model parameters from %s" % ckpt.model_checkpoint_path)

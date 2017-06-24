@@ -222,6 +222,7 @@ def prepare_my_data(working_directory, train_enc, train_dec, test_enc, test_dec,
     return (enc_train_ids_path, dec_train_ids_path, enc_dev_ids_path, dec_dev_ids_path, enc_vocab_path, dec_vocab_path)
 
 
+#not working
 def prepare_data_maybe_download(directory):
     """
     Download and unpack dialogs if necessary.
