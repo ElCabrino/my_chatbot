@@ -595,6 +595,21 @@ def attention_decoder(decoder_inputs,
       of attention_states are not set, or input size cannot be inferred
       from the input.
   """
+  """
+  print()
+  print()
+  print()
+  print('init states')
+  print()
+  print(initial_state)
+  print()
+  print()
+  print()
+  print('attns states')
+  print()
+  print(attention_states)
+  """
+
   if not decoder_inputs:
     raise ValueError("Must provide at least 1 input to attention decoder.")
   if num_heads < 1:
@@ -665,6 +680,8 @@ def attention_decoder(decoder_inputs,
       a.set_shape([None, attn_size])
     if initial_state_attention:
       attns = attention(initial_state)
+
+    enc_states = []
     for i, inp in enumerate(decoder_inputs):
       if i > 0:
         variable_scope.get_variable_scope().reuse_variables()
@@ -679,6 +696,7 @@ def attention_decoder(decoder_inputs,
       x = linear([inp] + attns, input_size, True)
       # Run the RNN.
       cell_output, state = cell(x, state)
+      enc_states.append(state) #I save all the previous states
       # Run the attention mechanism.
       if i == 0 and initial_state_attention:
         with variable_scope.variable_scope(
@@ -686,12 +704,38 @@ def attention_decoder(decoder_inputs,
           attns = attention(state)
       else:
         attns = attention(state)
-
       with variable_scope.variable_scope("AttnOutputProjection"):
         output = linear([cell_output] + attns, output_size, True)
       if loop_function is not None:
         prev = output
       outputs.append(output)
+
+    #attentions on the outputs
+    #ICI INITIAL STATES = LISTE DES ANCIENS ETATS COmme le proF A DIT
+    """
+    print()
+    print()
+    print()
+    print('enc states')
+    print()
+    print(enc_states)
+    """
+    
+    for i, outp in enumerate(outputs):
+      # Merge input and previous attentions into one vector of the right size.
+      output_size = outp.get_shape().with_rank(2)[1]
+      if output_size.value is None:
+        raise ValueError("Could not infer input size from input: %s" % outp.name)
+      attns = attention(enc_states[i])
+      outputs[i]+=attns[0]
+      """
+      print('shape outp')
+      print(outputs[i].get_shape())
+      print('attns shape')
+      print(len(attns))
+      """
+    
+
 
   return outputs, state
 
