@@ -539,6 +539,7 @@ def attention_decoder(decoder_inputs,
                       cell,
                       output_size=None,
                       num_heads=1,
+                      num_heads_output=0,
                       loop_function=None,
                       dtype=None,
                       scope=None,
@@ -669,6 +670,31 @@ def attention_decoder(decoder_inputs,
           ds.append(array_ops.reshape(d, [-1, attn_size]))
       return ds
 
+    #voir si ici je mettrais pas plutot des parametres non communs avec decoder(..)
+    def attention_on_decoder(query):
+      """Put attention masks on hidden using hidden_features and query."""
+      ds = []  # Results of attention reads will be stored here.
+      if nest.is_sequence(query):  # If the query is a tuple, flatten it.
+        query_list = nest.flatten(query)
+        for q in query_list:  # Check that ndims == 2 if specified.
+          ndims = q.get_shape().ndims
+          if ndims:
+            assert ndims == 2
+        query = array_ops.concat(query_list, 1)
+      for a in xrange(num_heads_output):
+        with variable_scope.variable_scope("Attention_%d" % a):
+          y = linear(query, attention_vec_size, True)
+          y = array_ops.reshape(y, [-1, 1, 1, attention_vec_size])
+          # Attention mask is a softmax of v^T * tanh(...).
+          s = math_ops.reduce_sum(v[a] * math_ops.tanh(hidden_features[a] + y),
+                                  [2, 3])
+          a = nn_ops.softmax(s)
+          # Now calculate the attention-weighted vector d.
+          d = math_ops.reduce_sum(
+              array_ops.reshape(a, [-1, attn_length, 1, 1]) * hidden, [1, 2])
+          ds.append(array_ops.reshape(d, [-1, attn_size]))
+      return ds
+
     outputs = []
     prev = None
     batch_attn_size = array_ops.stack([batch_size, attn_size])
@@ -747,6 +773,7 @@ def embedding_attention_decoder(decoder_inputs,
                                 num_symbols,
                                 embedding_size,
                                 num_heads=1,
+                                num_heads_output=0,
                                 output_size=None,
                                 output_projection=None,
                                 feed_previous=False,
@@ -822,6 +849,7 @@ def embedding_attention_decoder(decoder_inputs,
         cell,
         output_size=output_size,
         num_heads=num_heads,
+        num_heads_output=num_heads_output,
         loop_function=loop_function,
         initial_state_attention=initial_state_attention)
 
@@ -833,6 +861,7 @@ def embedding_attention_seq2seq(encoder_inputs,
                                 num_decoder_symbols,
                                 embedding_size,
                                 num_heads=1,
+                                num_heads_output=0,
                                 output_projection=None,
                                 feed_previous=False,
                                 dtype=None,
@@ -914,6 +943,7 @@ def embedding_attention_seq2seq(encoder_inputs,
           num_decoder_symbols,
           embedding_size,
           num_heads=num_heads,
+          num_heads_output=num_heads_output,
           output_size=output_size,
           output_projection=output_projection,
           feed_previous=feed_previous,
@@ -932,6 +962,7 @@ def embedding_attention_seq2seq(encoder_inputs,
             num_decoder_symbols,
             embedding_size,
             num_heads=num_heads,
+            num_heads_output=num_heads_output,
             output_size=output_size,
             output_projection=output_projection,
             feed_previous=feed_previous_bool,

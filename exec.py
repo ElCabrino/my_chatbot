@@ -56,7 +56,8 @@ tf.app.flags.DEFINE_integer("batch_size", 64,
                             "Batch size to use during training.")
 tf.app.flags.DEFINE_integer("size", 1024, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers in the model.")
-tf.app.flags.DEFINE_integer("num_attns_decoder", 1, "Number of attentions on the decoding in the model.")
+tf.app.flags.DEFINE_integer("num_attns", 1, "Number of attentions for the decoding in the model.")
+tf.app.flags.DEFINE_integer("num_attns_output", 0, "Number of attentions on the output in the model.")
 tf.app.flags.DEFINE_integer("from_vocab_size", 40000, "Input vocabulary size.")
 tf.app.flags.DEFINE_integer("to_vocab_size", 40000, "Output vocabulary size.")
 tf.app.flags.DEFINE_string("data_dir", "tmp/", "Data directory")
@@ -135,7 +136,8 @@ def create_model(session, forward_only):
       FLAGS.learning_rate,
       FLAGS.learning_rate_decay_factor,
       forward_only=forward_only,
-      num_heads=FLAGS.num_attns_decoder)
+      num_heads=FLAGS.num_attns,
+      num_heads_output=FLAGS.num_attns_output)
   ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
   if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
     print("Reading model parameters from %s" % ckpt.model_checkpoint_path)

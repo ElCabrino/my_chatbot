@@ -57,7 +57,8 @@ class Seq2SeqModel(object):
                num_samples=512,
                forward_only=False,
                dtype=tf.float32,
-               num_heads=1):
+               num_heads=1,
+               num_heads_output=0):
     """Create the model.
 
     Args:
@@ -142,7 +143,8 @@ class Seq2SeqModel(object):
           output_projection=output_projection,
           feed_previous=do_decode,
           dtype=dtype,
-          num_heads=num_heads)
+          num_heads=num_heads,
+          num_heads_output=num_heads_output)
 
     # Feeds for inputs.
     self.encoder_inputs = []
