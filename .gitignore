@@ -3,10 +3,6 @@ working_dir/*
 tmp/*
 !tmp/.gitkeep
 data/*
-!data/test.enc
-!data/test.dec
-!data/train.enc
-!data/train.dec
 __pycache__/
 __init__.py
 .DS_Store
