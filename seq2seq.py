@@ -670,7 +670,7 @@ def attention_decoder(decoder_inputs,
           ds.append(array_ops.reshape(d, [-1, attn_size]))
       return ds
 
-    #voir si ici je mettrais pas plutot des parametres non communs avec decoder(..)
+    #voir si ici je mettrais pas plutot des parametres non communs avec attention(..)
     def attention_on_decoder(query):
       """Put attention masks on hidden using hidden_features and query."""
       ds = []  # Results of attention reads will be stored here.
@@ -737,10 +737,7 @@ def attention_decoder(decoder_inputs,
       outputs.append(output)
 
     #attentions on the outputs
-    #ICI INITIAL STATES = LISTE DES ANCIENS ETATS COmme le proF A DIT
     """
-    print()
-    print()
     print()
     print('enc states')
     print()
