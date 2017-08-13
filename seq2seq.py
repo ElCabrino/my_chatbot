@@ -596,20 +596,6 @@ def attention_decoder(decoder_inputs,
       of attention_states are not set, or input size cannot be inferred
       from the input.
   """
-  """
-  print()
-  print()
-  print()
-  print('init states')
-  print()
-  print(initial_state)
-  print()
-  print()
-  print()
-  print('attns states')
-  print()
-  print(attention_states)
-  """
 
   if not decoder_inputs:
     raise ValueError("Must provide at least 1 input to attention decoder.")
@@ -670,31 +656,6 @@ def attention_decoder(decoder_inputs,
           ds.append(array_ops.reshape(d, [-1, attn_size]))
       return ds
 
-    #voir si ici je mettrais pas plutot des parametres non communs avec attention(..)
-    def attention_on_decoder(query):
-      """Put attention masks on hidden using hidden_features and query."""
-      ds = []  # Results of attention reads will be stored here.
-      if nest.is_sequence(query):  # If the query is a tuple, flatten it.
-        query_list = nest.flatten(query)
-        for q in query_list:  # Check that ndims == 2 if specified.
-          ndims = q.get_shape().ndims
-          if ndims:
-            assert ndims == 2
-        query = array_ops.concat(query_list, 1)
-      for a in xrange(num_heads_output):
-        with variable_scope.variable_scope("Attention_%d" % a):
-          y = linear(query, attention_vec_size, True)
-          y = array_ops.reshape(y, [-1, 1, 1, attention_vec_size])
-          # Attention mask is a softmax of v^T * tanh(...).
-          s = math_ops.reduce_sum(v[a] * math_ops.tanh(hidden_features[a] + y),
-                                  [2, 3])
-          a = nn_ops.softmax(s)
-          # Now calculate the attention-weighted vector d.
-          d = math_ops.reduce_sum(
-              array_ops.reshape(a, [-1, attn_length, 1, 1]) * hidden, [1, 2])
-          ds.append(array_ops.reshape(d, [-1, attn_size]))
-      return ds
-
     outputs = []
     prev = None
     batch_attn_size = array_ops.stack([batch_size, attn_size])
@@ -736,27 +697,72 @@ def attention_decoder(decoder_inputs,
         prev = output
       outputs.append(output)
 
-    #attentions on the outputs
-    """
-    print()
-    print('enc states')
-    print()
-    print(enc_states)
-    """
-    
-    for i, outp in enumerate(outputs):
-      # Merge input and previous attentions into one vector of the right size.
-      output_size = outp.get_shape().with_rank(2)[1]
-      if output_size.value is None:
-        raise ValueError("Could not infer input size from input: %s" % outp.name)
-      attns = attention(enc_states[i])
-      outputs[i]+=attns[0]
-      """
-      print('shape outp')
-      print(outputs[i].get_shape())
-      print('attns shape')
-      print(len(attns))
-      """
+
+    #Mon système d'attention sur l'output:#
+    #######################################
+    if num_heads_output>0:
+      print('YAA')
+      # Concatenation d'outputs du decodeur ou on va mettre l'attention
+      top_states_outputs = [
+          array_ops.reshape(e, [-1, 1, cell.output_size]) for e in outputs
+      ]
+      attention_states_outputs = array_ops.concat(top_states_outputs, 1)
+
+      #ici je calcule les paramètres pour attention_on_decoder comme fait pour la
+      #fonction attention(..)
+
+      #les tailles:
+      attn_length_outputs = attention_states_outputs.get_shape()[1].value
+      if attn_length_outputs is None:
+        attn_length_outputs = array_ops.shape(attention_states_outputs)[1]
+      attn_size_outputs = attention_states_outputs.get_shape()[2].value
+
+      # To calculate W1 * h_t we use a 1-by-1 convolution, need to reshape before.
+      hidden_outputs = array_ops.reshape(attention_states_outputs,
+                                 [-1, attn_length_outputs, 1, attn_size_outputs])
+      hidden_features_outputs = []
+      v_outputs = []
+      attention_vec_size_outputs = attn_size_outputs  # Size of query vectors for attention.
+      for a in xrange(num_heads_output):
+        k = variable_scope.get_variable("AttnW_%d" % a,
+                                        [1, 1, attn_size_outputs, attention_vec_size_outputs])
+        hidden_features_outputs.append(nn_ops.conv2d(hidden_outputs, k, [1, 1, 1, 1], "SAME"))
+        v_outputs.append(
+            variable_scope.get_variable("AttnV_%d" % a, [attention_vec_size_outputs]))
+      
+
+      #fonction comme attention(...) sauf qu'elle fonctionne avec des parametres différents
+      def attention_on_decoder(query):
+        """Put attention masks on hidden using hidden_features and query."""
+        ds = []  # Results of attention reads will be stored here.
+        if nest.is_sequence(query):  # If the query is a tuple, flatten it.
+          query_list = nest.flatten(query)
+          for q in query_list:  # Check that ndims == 2 if specified.
+            ndims = q.get_shape().ndims
+            if ndims:
+              assert ndims == 2
+          query = array_ops.concat(query_list, 1)
+        for a in xrange(num_heads_output):
+          with variable_scope.variable_scope("Attention_%d" % a):
+            y = linear(query, attention_vec_size, True)
+            y = array_ops.reshape(y, [-1, 1, 1, attention_vec_size_outputs])
+            # Attention mask is a softmax of v^T * tanh(...).
+            s = math_ops.reduce_sum(v_outputs[a] * math_ops.tanh(hidden_features_outputs[a] + y),
+                                    [2, 3])
+            a = nn_ops.softmax(s)
+            # Now calculate the attention-weighted vector d.
+            d = math_ops.reduce_sum(
+                array_ops.reshape(a, [-1, attn_length_outputs, 1, 1]) * hidden_features_outputs, [1, 2])
+            ds.append(array_ops.reshape(d, [-1, attn_size_outputs]))
+        return ds
+
+      for i, outp in enumerate(outputs):
+        # Merge input and previous attentions into one vector of the right size.
+        output_size = outp.get_shape().with_rank(2)[1]
+        if output_size.value is None:
+          raise ValueError("Could not infer input size from input: %s" % outp.name)
+        attns = attention_on_decoder(enc_states[i])
+        outputs[i]+=attns[0]
     
 
 
