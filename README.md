@@ -45,8 +45,8 @@ Option | Valeur par défaut | Utilité
 **num_layers** | 1 | Nombre de couches du modèle 
 **num_attns** | 1 | Nombre de vecteurs d'attentions pour le décodage 
 **num_attns_output** | 0 | Nombre de vecteurs d'attentions appliqués sur la sortie générée
-**from_vocab_size** | 20000 | Taille maximale du vocabulaire d'entrée
-**to_vocab_size** | 20000 | Taille maximale du vocabulaire de sortie
+**from_vocab_size** | 40000 | Taille maximale du vocabulaire d'entrée
+**to_vocab_size** | 40000 | Taille maximale du vocabulaire de sortie
 **steps_per_checkpoint** | 5 | Nombre d'étapes avant de sauvegarder l'état du modèle
 
 Par exemple pour entrainer le modèle avec 3 couches de 256 cellules:
