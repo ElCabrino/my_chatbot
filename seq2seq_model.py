@@ -53,7 +53,6 @@ class Seq2SeqModel(object):
                batch_size,
                learning_rate,
                learning_rate_decay_factor,
-               use_lstm=False,
                num_samples=512,
                forward_only=False,
                dtype=tf.float32,
@@ -77,7 +76,6 @@ class Seq2SeqModel(object):
         changed after initialization if this is convenient, e.g., for decoding.
       learning_rate: learning rate to start with.
       learning_rate_decay_factor: decay learning rate by this much when needed.
-      use_lstm: if true, we use LSTM cells instead of GRU cells.
       num_samples: number of samples for sampled softmax.
       forward_only: if set, we do not construct the backward pass in the model.
       dtype: the data type to use to store internal variables.
@@ -121,12 +119,8 @@ class Seq2SeqModel(object):
       softmax_loss_function = sampled_loss
 
     # Create the internal multi-layer cell for our RNN.
-    """la ça créé les cellule reliée entre elles"""
     def single_cell():
-      return tf.contrib.rnn.GRUCell(size)
-    if use_lstm:
-      def single_cell():
-        return tf.contrib.rnn.BasicLSTMCell(size)
+      return tf.contrib.rnn.BasicLSTMCell(size)
     cell = single_cell()
     if num_layers > 1:
       cell = tf.contrib.rnn.MultiRNNCell([single_cell() for _ in range(num_layers)])

@@ -115,7 +115,7 @@ def read_data(source_path, target_path, max_size=None):
 
 
 def create_model(session, forward_only):
-  """Create translation model and initialize or load parameters in session."""
+  """Create model and initialize or load parameters in session."""
   dtype = tf.float32
   model = seq2seq_model.Seq2SeqModel(
       FLAGS.from_vocab_size,
