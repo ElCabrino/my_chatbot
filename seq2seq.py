@@ -683,7 +683,7 @@ def attention_decoder(decoder_inputs,
       x = linear([inp] + attns, input_size, True)
       # Run the RNN.
       cell_output, state = cell(x, state)
-      enc_states.append(state) #I save all the previous states
+      enc_states.append(state) #Je sauvegarde tout les états
       # Run the attention mechanism.
       if i == 0 and initial_state_attention:
         with variable_scope.variable_scope(
@@ -695,13 +695,23 @@ def attention_decoder(decoder_inputs,
         output = linear([cell_output] + attns, output_size, True)
       if loop_function is not None:
         prev = output
+
+      """
+      print('cell_output')
+      print(cell_output)
+      print('attention 1')
+      print(attns)
+      print('output linear')
+      print(output)
+      """
+      print('def0')
+      print(attns)
       outputs.append(output)
 
 
     #Mon système d'attention sur l'output:#
     #######################################
     if num_heads_output>0:
-      print('YAA')
       # Concatenation d'outputs du decodeur ou on va mettre l'attention
       top_states_outputs = [
           array_ops.reshape(e, [-1, 1, cell.output_size]) for e in outputs
@@ -752,20 +762,36 @@ def attention_decoder(decoder_inputs,
             a = nn_ops.softmax(s)
             # Now calculate the attention-weighted vector d.
             d = math_ops.reduce_sum(
-                array_ops.reshape(a, [-1, attn_length_outputs, 1, 1]) * hidden_features_outputs, [1, 2])
+                array_ops.reshape(a, [-1, attn_length_outputs, 1, 1]) * hidden_features_outputs[0], [1, 2])
             ds.append(array_ops.reshape(d, [-1, attn_size_outputs]))
         return ds
-
+      """
+      print('default')
+      print(attn_length)
+      print('moi')
+      print(attn_length_outputs)
+      """
       for i, outp in enumerate(outputs):
         # Merge input and previous attentions into one vector of the right size.
         output_size = outp.get_shape().with_rank(2)[1]
         if output_size.value is None:
           raise ValueError("Could not infer input size from input: %s" % outp.name)
         attns = attention_on_decoder(enc_states[i])
-        outputs[i]+=attns[0]
+        """
+        print('moi')
+        print(attention_vec_size_outputs)
+        print('attention 2')
+        print(attns)
+        print('outputs amoi')
+        print(outputs[i])
+        """
+        print('moit')
+        print(attns)
+        outputs[i] = outputs[i] + attns
+        #outputs[i]+=attns[0]
     
 
-
+  #print(outputs)
   return outputs, state
 
 
@@ -929,6 +955,7 @@ def embedding_attention_seq2seq(encoder_inputs,
     top_states = [
         array_ops.reshape(e, [-1, 1, cell.output_size]) for e in encoder_outputs
     ]
+    
     attention_states = array_ops.concat(top_states, 1)
 
     # Decoder.
