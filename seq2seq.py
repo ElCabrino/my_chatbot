@@ -705,7 +705,7 @@ def attention_decoder(decoder_inputs,
       print(output)
       """
       print('def0')
-      print(attns)
+      print(cell_output)
       outputs.append(output)
 
 
@@ -786,8 +786,9 @@ def attention_decoder(decoder_inputs,
         print(outputs[i])
         """
         print('moit')
-        print(attns)
-        outputs[i] = outputs[i] + attns
+        #outputs[i] = outputs[i] + attns
+        print(outputs[i])
+        outputs[i] = linear([outputs[i]] + attns, output_size, True)
         #outputs[i]+=attns[0]
     
 
