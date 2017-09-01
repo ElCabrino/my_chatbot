@@ -68,6 +68,7 @@ tf.app.flags.DEFINE_boolean("decode", False,
                             "Set to True for interactive decoding.")
 tf.app.flags.DEFINE_boolean("self_test", False,
                             "Run a self-test if this is set to True.")
+tf.app.flags.DEFINE_string("model", "tmp/1attns_in_0attns_outLSTM", "Path of the parameters of the data.")
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -130,7 +131,7 @@ def create_model(session, forward_only):
       forward_only=forward_only,
       num_heads=FLAGS.num_attns,
       num_heads_output=FLAGS.num_attns_output)
-  ckpt = tf.train.get_checkpoint_state("tmp/")
+  ckpt = tf.train.get_checkpoint_state(FLAGS.model)
   if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
     print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
     model.saver.restore(session, ckpt.model_checkpoint_path)
@@ -169,6 +170,13 @@ def train():
     step_time, loss = 0.0, 0.0
     current_step = 0
     previous_losses = []
+    
+    """
+    fr_vocab_path = os.path.join("working_dir/",
+                                 "vocab%d.dec" % FLAGS.to_vocab_size)
+    _, rev_fr_vocab = data_utils.initialize_vocabulary(fr_vocab_path)
+    """
+    
     while True:
       print(current_step)
       # Choose a bucket according to data distribution. We pick a random number
@@ -181,8 +189,18 @@ def train():
       start_time = time.time()
       encoder_inputs, decoder_inputs, target_weights = model.get_batch(
           train_set, bucket_id)
-      _, step_loss, _ = model.step(sess, encoder_inputs, decoder_inputs,
+      _, step_loss, outp_moi = model.step(sess, encoder_inputs, decoder_inputs,
                                    target_weights, bucket_id, False)
+
+      """
+      outputs = [int(np.argmax(logit)) for logit in outp_moi[0]]
+      print('moi')
+      print(outputs)
+      print('en mot')   
+      print(" ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs]))
+      """
+
+
       step_time += (time.time() - start_time) / FLAGS.steps_per_checkpoint
       loss += step_loss / FLAGS.steps_per_checkpoint
       current_step += 1
@@ -199,7 +217,7 @@ def train():
           sess.run(model.learning_rate_decay_op)
         previous_losses.append(loss)
         # Save checkpoint and zero timer and loss.
-        checkpoint_path = os.path.join("tmp/", "translate.ckpt")
+        checkpoint_path = os.path.join(FLAGS.model, "translate.ckpt")
         print('Saving model at', checkpoint_path)
         model.saver.save(sess, checkpoint_path, global_step=model.global_step)
         step_time, loss = 0.0, 0.0
@@ -255,7 +273,14 @@ def decode():
       _, _, output_logits = model.step(sess, encoder_inputs, decoder_inputs,
                                        target_weights, bucket_id, True)
       # This is a greedy decoder - outputs are just argmaxes of output_logits.
+      """
+      print('OUTPUTS')
+      for logit in output_logits:
+        print(len(logit))
+        print(' -------------')
+      """
       outputs = [int(np.argmax(logit, axis=1)) for logit in output_logits]
+
       # If there is an EOS symbol in outputs, cut them at that point.
       if data_utils.EOS_ID in outputs:
         outputs = outputs[:outputs.index(data_utils.EOS_ID)]

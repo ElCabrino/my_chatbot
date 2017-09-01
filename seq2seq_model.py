@@ -243,18 +243,25 @@ class Seq2SeqModel(object):
     input_feed[last_target] = np.zeros([self.batch_size], dtype=np.int32)
 
     # Output feed: depends on whether we do a backward step or not.t
+    outputs_moi=None
     if not forward_only:
       output_feed = [self.updates[bucket_id],  # Update Op that does SGD.
                      self.gradient_norms[bucket_id],  # Gradient norm.
                      self.losses[bucket_id]]  # Loss for this batch.
+      output_feed_moi = [self.losses[bucket_id]]  # Loss for this batch.
+      #pour print:
+      for l in xrange(decoder_size):  # Output logits.
+        output_feed_moi.append(self.outputs[bucket_id][l])
+      outputs_moi = session.run(output_feed_moi, input_feed)
     else:
       output_feed = [self.losses[bucket_id]]  # Loss for this batch.
       for l in xrange(decoder_size):  # Output logits.
         output_feed.append(self.outputs[bucket_id][l])
 
     outputs = session.run(output_feed, input_feed)
+    
     if not forward_only:
-      return outputs[1], outputs[2], None  # Gradient norm, loss, no outputs.
+      return outputs[1], outputs[2], outputs_moi[1:]  # Gradient norm, loss, outputs.
     else:
       return None, outputs[0], outputs[1:]  # No gradient norm, loss, outputs.
 

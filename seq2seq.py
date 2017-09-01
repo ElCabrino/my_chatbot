@@ -649,6 +649,7 @@ def attention_decoder(decoder_inputs,
           # Attention mask is a softmax of v^T * tanh(...).
           s = math_ops.reduce_sum(v[a] * math_ops.tanh(hidden_features[a] + y),
                                   [2, 3])
+
           a = nn_ops.softmax(s)
           # Now calculate the attention-weighted vector d.
           d = math_ops.reduce_sum(
@@ -704,8 +705,8 @@ def attention_decoder(decoder_inputs,
       print('output linear')
       print(output)
       """
-      print('def0')
-      print(cell_output)
+      #print('def0')
+      #print(cell_output)
       outputs.append(output)
 
 
@@ -759,6 +760,8 @@ def attention_decoder(decoder_inputs,
             # Attention mask is a softmax of v^T * tanh(...).
             s = math_ops.reduce_sum(v_outputs[a] * math_ops.tanh(hidden_features_outputs[a] + y),
                                     [2, 3])
+            #print('moi')
+            #print(hidden_features_outputs[a])
             a = nn_ops.softmax(s)
             # Now calculate the attention-weighted vector d.
             d = math_ops.reduce_sum(
@@ -785,9 +788,9 @@ def attention_decoder(decoder_inputs,
         print('outputs amoi')
         print(outputs[i])
         """
-        print('moit')
+        #print('moit')
         #outputs[i] = outputs[i] + attns
-        print(outputs[i])
+        #print(outputs[i])
         outputs[i] = linear([outputs[i]] + attns, output_size, True)
         #outputs[i]+=attns[0]
     
