@@ -1,4 +1,5 @@
 working_dir/*
+!data/.gitkeep
 data/*
 data/test.dec
 data/test.enc
