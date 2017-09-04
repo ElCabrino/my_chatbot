@@ -79,7 +79,7 @@ def create_vocabulary(vocabulary_path, data_path, max_vocabulary_size,
               (vocabulary_path, data_path))
         vocab = {}
         with gfile.GFile(data_path, mode="rb") as f:
-            print(f)
+            #print(f)
             counter = 0
             for line in f:
                 counter += 1
