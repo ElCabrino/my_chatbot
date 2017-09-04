@@ -1,10 +1,6 @@
 working_dir/*
 !data/.gitkeep
 data/*
-data/test.dec
-data/test.enc
-data/train.enc
-data/train.dec
 !working_dir/.gitkeep
 tmp/*
 !tmp/.gitkeep
