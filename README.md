@@ -11,7 +11,7 @@ Chatbot fait à l'aide de Tensorflow 1.0. Le code ne fonctionne pas pour des ver
 
 ## Lancement du code
 
-Pour lancer le code avec les valeurs par défaut de mon modèle il suffit de lancer les commandes ci-dessous dans l'ordre.
+Tout d'abord avant de lancer le code il faut télécharger le data set en cliquant [ici](http://dataset.cs.mcgill.ca/ubuntu-corpus-1.0/ubuntu_dialogs.tgz). Ensuite il faut décomprésser l'archive dans le dossier /data. Pour lancer le code avec les valeurs par défaut de mon modèle il suffit de lancer les commandes ci-dessous dans l'ordre.
 
 * Entrainer l'algorithme
 
