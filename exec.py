@@ -68,7 +68,7 @@ tf.app.flags.DEFINE_boolean("decode", False,
                             "Set to True for interactive decoding.")
 tf.app.flags.DEFINE_boolean("self_test", False,
                             "Run a self-test if this is set to True.")
-tf.app.flags.DEFINE_string("model", "tmp/1attns_in_0attns_outLSTM", "Path of the parameters of the data.")
+tf.app.flags.DEFINE_string("model", "tmp/", "Path of the folder of a specific model.")
 
 FLAGS = tf.app.flags.FLAGS
 
